@@ -14,45 +14,44 @@ import { getAllByRole } from '@testing-library/react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import AdminPage from './AdminPage';
 
-export default function App () {
-    // const [wheelElements, setWheelElements] = useState(['Sandwiches', 'Salads', 'Soup', 'Japanese food', 'Pastas']);
-    const [wheelElements, setWheelElements] = useState([]);
+import { constructWheelArray } from './function'
+import EmailPage from './EmailPage';
+import ChartPage from './ChartPage';
 
+import './styles.css'
+
+export default function App () {
+    const [wheelElements, setWheelElements] = useState([]);
     const [tableValues, setTableValues] = useState([]);
+    
     const wheelCollectionRef = collection(db, 'wheel_elements')
     const tableCollectionRef = collection(db, 'table_values')
-    // console.log(wheelElements)
 
     useEffect(() => {
-      const getWheelData = async () => {
-        let data = await getDocs(wheelCollectionRef);
-        console.log("gae 2")
-        console.log(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
-        setWheelElements(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
-        console.log("wheel values")
-        console.log(wheelElements)
-      }
-
-      const getTableData = async() => {
-        let data = await getDocs(tableCollectionRef);
-        console.log("Table elements")
-        setTableValues(data.docs.map((doc) => ({...doc.data(), id:doc.id})))
-        console.log(data.docs.map((doc) => ({...doc.data(), id:doc.id})))
-        console.log("table values")
-        console.log(tableValues)
-      }
-
-      getWheelData();
-      getTableData();
+      console.log("GALLL")
+      getTableData()
     }, []);
+
+    const getTableData = async() => {
+      let data = await getDocs(tableCollectionRef);
+      console.log("Table elements")
+      console.log(data.docs.map((doc) => ({...doc.data(), id:doc.id})))
+      setTableValues(data.docs.map((doc) => ({...doc.data(), id:doc.id})))
+      var wheelArray = constructWheelArray(data.docs.map((doc) => ({...doc.data(), id:doc.id})))
+      setWheelElements(wheelArray)
+      console.log("table values")
+      console.log(tableValues)
+    }
 
     return (
       <Router>
         <html translate="no">
         <div className="App">
           <Routes>
-            <Route path="/" element={<AdminPage wheelElements={wheelElements} setWheelElements={setWheelElements} tableValues={tableValues} setTableValues={setTableValues} tableCollectionRef={tableCollectionRef} wheelCollectionRef={wheelCollectionRef}/>}/>
+            <Route path="/" element={<AdminPage getTableData={getTableData} wheelElements={wheelElements} setWheelElements={setWheelElements} tableValues={tableValues} setTableValues={setTableValues} tableCollectionRef={tableCollectionRef} wheelCollectionRef={wheelCollectionRef}/>}/>
             <Route path="/spin" element={<SpinPage wheelElements={wheelElements}/>}/>
+            <Route path="/emails" element={<EmailPage></EmailPage>}/>
+            <Route path="/chart" element={<ChartPage></ChartPage>}/>
           </Routes>
         </div>
         </html>
